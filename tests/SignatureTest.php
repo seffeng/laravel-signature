@@ -46,7 +46,7 @@ class SignatureTest extends TestCase
              */
             Signature::loadServer();
             // 其他服务端
-            Signature::setServer('other-server')->loadServer();
+            // Signature::setServer('other-server')->loadServer();
             $accessKeyId = $request->header(Signature::getHeaderAccessKeyId());
             $timestamp = $request->header(Signature::getHeaderTimestamp());
             $signature = $request->header(Signature::getHeaderSignature());
@@ -60,11 +60,13 @@ class SignatureTest extends TestCase
             if (!$application) {
                 throw new SignatureException('应用不存在！');
             }
+            // IP白名单验证，不在此IP列表中则验证不通过 ['192.168.1.1', '127.0.0.1', ...]
             if ($application->white_ip) {
                 if (!in_array(request()->getClientIp(), $application->white_ip)) {
                     throw new SignatureException('该IP不在白名单中，禁止访问！');
                 }
             }
+            // IP黑名单验证，在此IP列表中则验证不通过 ['192.168.1.1', '127.0.0.1', ...]
             if ($application->black_ip) {
                 if (in_array(request()->getClientIp(), $application->black_ip)) {
                     throw new SignatureException('该IP在黑名单中，禁止访问！');
@@ -76,7 +78,7 @@ class SignatureTest extends TestCase
             if (!Signature::verifyTimestamp($timestamp)) {
                 throw new SignatureException('请求超时，请确认服务器时间！');
             }
-            if (Signature::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->verify($signature, $method, $uri, $request->all())) {
+            if (Signature::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->setTimestamp($timestamp)->verify($signature, $method, $uri, $request->all())) {
                 /**
                  * @var \Closure $next
                  */

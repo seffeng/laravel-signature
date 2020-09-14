@@ -364,6 +364,7 @@ class Signature
     public function setTimestamp(int $time = null)
     {
         $this->timestamp = is_null($time) ? time() : $time;
+        return $this;
     }
 
     /**

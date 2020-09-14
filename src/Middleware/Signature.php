@@ -46,7 +46,7 @@ class Signature
             if (!SignatureFacade::verifyTimestamp($timestamp)) {
                 throw new SignatureException('请求超时，请确认服务器时间！');
             }
-            if (SignatureFacade::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->verifySign($signature, $method, $uri, $request->all())) {
+            if (SignatureFacade::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->setTimestamp($timestamp)->verify($signature, $method, $uri, $request->all())) {
                 return $next($request);
             }
             throw new SignatureException('签名无效！');

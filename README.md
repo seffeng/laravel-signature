@@ -12,13 +12,22 @@ $ composer require seffeng/laravel-signature
 ```php
 # 1、生成配置文件
 $ php artisan vendor:publish --tag="signature"
+
+# 2、修改配置文件 /config/signature.php，或 .env
 ```
 
 ##### lumen
 
 ```php
-# 1、将以下代码段添加到 /bootstrap/app.php 文件中的 Providers 部分
+# 1、复制扩展内配置文件 /config/signature.php 到项目配置目录 /config
+
+# 2、修改配置文件 /config/signature.php，或 .env
+
+# 3、将以下代码段添加到 /bootstrap/app.php 文件中的 Providers 部分
 $app->register(Seffeng\LaravelSignature\SignatureServiceProvider::class);
+
+# 4、/bootstrap/app.php 添加配置加载代码
+$app->configure('signature');
 ```
 
 ### 示例
@@ -100,11 +109,13 @@ class Signature
             if (!$application) {
                 throw new SignatureException('应用不存在！');
             }
+            // IP白名单验证，不在此IP列表中则验证不通过 ['192.168.1.1', '127.0.0.1', ...]
             if ($application->white_ip) {
                 if (!in_array(request()->getClientIp(), $application->white_ip)) {
                     throw new SignatureException('该IP不在白名单中，禁止访问！');
                 }
             }
+            // IP黑名单验证，在此IP列表中则验证不通过 ['192.168.1.2', '127.0.0.2', ...]
             if ($application->black_ip) {
                 if (in_array(request()->getClientIp(), $application->black_ip)) {
                     throw new SignatureException('该IP在黑名单中，禁止访问！');
@@ -116,7 +127,7 @@ class Signature
             if (!SignatureFacade::verifyTimestamp($timestamp)) {
                 throw new SignatureException('请求超时，请确认服务器时间！');
             }
-            if (SignatureFacade::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->verifySign($signature, $method, $uri, $request->all())) {
+            if (SignatureFacade::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->setTimestamp($timestamp)->verify($signature, $method, $uri, $request->all())) {
                 return $next($request);
             }
             throw new SignatureException('签名无效！');
@@ -135,5 +146,7 @@ class Signature
 
 ### 备注
 
-1、本扩展仅用于个人项目应用之间接口签名验证。
+1、本扩展仅用于个人项目应用之间接口签名验证；
+
+2、测试脚本 tests/SignatureTest.php 仅作为示例供参考。
 
