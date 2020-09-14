@@ -12,6 +12,12 @@ class Signature
 {
     /**
      *
+     * @var boolean
+     */
+    protected $debug;
+
+    /**
+     *
      * @var string
      */
     protected $host;
@@ -144,6 +150,7 @@ class Signature
     public function __construct(array $config)
     {
         $env = Arr::getValue($config, 'env');
+        $this->debug = Arr::getValue($config, 'debug');
         $typeId = array_search($env, self::fetchTypeNameItems());
         if ($typeId) {
             $this->client = Arr::getValue($config, 'client');
@@ -187,7 +194,7 @@ class Signature
      */
     public function verify(string $signature, string $method, string $uri, array $params = [])
     {
-        return hash_equals($this->sign($method, $uri, $params), $signature);
+        return $this->getIsDebug() ? true : hash_equals($this->sign($method, $uri, $params), $signature);
     }
 
     /**
@@ -526,6 +533,17 @@ class Signature
     protected function getIsServer()
     {
         return $this->getTypeId() === self::TYPE_SERVER;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2020年9月14日
+     * @return boolean
+     */
+    protected function getIsDebug()
+    {
+        return $this->debug;
     }
 
     /**
