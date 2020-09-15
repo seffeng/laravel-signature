@@ -41,22 +41,22 @@ class SignatureTest extends TestCase
             $request = $httpClient->get('/test', ['headers' => $headers, 'query' => $params]);
 
             /**
-             * 服务端验证签名[使用中间件方式]
+             * 服务端验证签名
              * @var Request $request
              */
-            Signature::loadServer();
             // 其他服务端
             // Signature::setServer('other-server')->loadServer();
             $accessKeyId = $request->header(Signature::getHeaderAccessKeyId());
             $timestamp = $request->header(Signature::getHeaderTimestamp());
             $signature = $request->header(Signature::getHeaderSignature());
+            $version = $request->header(Signature::getHeaderVersion(), '');
             $method = $request->getMethod();
             $uri = $request->getPathInfo();
-            $accessKeySecret = '';
+            $accessKeySecret = '设置secret或通过$accessKeyId数据库查询获取！';
 
-            // 其他判断，通过数据库查询应用信息
+            // 其他判断，通过数据库查询应用信息，自行创建数据表，如[Application]
             /**
-            $application = Application::where('access_key', $accessKeyId)->first();
+            $application = Application::where('access_key_id', $accessKeyId)->first();
             if (!$application) {
                 throw new SignatureException('应用不存在！');
             }
@@ -72,17 +72,14 @@ class SignatureTest extends TestCase
                     throw new SignatureException('该IP在黑名单中，禁止访问！');
                 }
             }
-            $accessKeySecret = $application->access_secret;
+            $accessKeySecret = $application->access_key_secret;
              */
 
             if (!Signature::verifyTimestamp($timestamp)) {
                 throw new SignatureException('请求超时，请确认服务器时间！');
             }
-            if (Signature::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->setTimestamp($timestamp)->verify($signature, $method, $uri, $request->all())) {
-                /**
-                 * @var \Closure $next
-                 */
-                return $next($request);
+            if (Signature::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->setVersion($version)->setTimestamp($timestamp)->verify($signature, $method, $uri, $request->all())) {
+                return true;
             }
             throw new SignatureException('签名无效！');
         } catch (SignatureException $e) {

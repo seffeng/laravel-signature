@@ -45,6 +45,12 @@ return [
             'timeout' => env('SIGNATURE_TIMEOUT', 300),
 
             /**
+             * 版本[V1, v2, v2020...]
+             * version
+             */
+            'version' => env('SIGNATURE_VERSION', ''),
+
+            /**
              * 签名前缀[签名字符串前面拼接的字符]
              */
             'prefix' => env('SIGNATURE_PREFIX', ''),
@@ -78,6 +84,11 @@ return [
              * 请求头Signature对应标签[$header['Signature'] = "Signature $sign"]
              */
             'headerSignatureTag' => env('SIGNATURE_HEADER_SIGNATURE_TAG', 'Signature'),
+
+            /**
+             * 请求头Signature对应标签[$header['Version'] = 'version']
+             */
+            'headerVersion' => env('SIGNATURE_HEADER_VERSION', 'Version'),
         ],
 
         // 更多服务端...
@@ -153,6 +164,11 @@ return [
              * 请求头Signature对应标签[$header['Signature'] = "Signature $sign"]
              */
             'headerSignatureTag' => env('SIGNATURE_HEADER_SIGNATURE_TAG', 'Signature'),
+
+            /**
+             * 请求头Signature对应标签[$header['Version'] = 'version']
+             */
+            'headerVersion' => env('SIGNATURE_HEADER_VERSION', 'Version'),
         ],
 
         // 更多客户端...

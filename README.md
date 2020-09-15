@@ -72,67 +72,42 @@ class SiteController extends Controller
 ```
 
 ```php
-# 服务端示例，通过中间件
+# 服务端示例，可通过中间件使用，或参考 /tests/SignatureTest.php 
 use Closure;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Seffeng\LaravelSignature\Exceptions\SignatureException;
+use Seffeng\LaravelSignature\Exceptions\SignatureAccessException;
+use Seffeng\LaravelSignature\Exceptions\SignatureTimeoutException;
 use Seffeng\LaravelSignature\Facades\Signature as SignatureFacade;
+use Seffeng\LaravelSignature\Middleware\Signature as Middleware;
 
-class Signature
+class Signature extends Middleware
 {
     /**
      *
-     * @author zxf
-     * @date    2020年9月14日
-     * @param  \Illuminate\Http\Request $request
-     * @param  Closure $next
-     * @throws HttpException
-     * @throws SignatureException
-     * @return void
+     * {@inheritDoc}
+     * @see \Seffeng\LaravelSignature\Middleware\Signature::handle()
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, string $server = null)
     {
-        try{
-            SignatureFacade::loadServer();
-            // 其他服务端
-            // SignatureFacade::setServer('other-server')->loadServer();
-            $accessKeyId = $request->header(SignatureFacade::getHeaderAccessKeyId());
-            $timestamp = $request->header(SignatureFacade::getHeaderTimestamp());
-            $signature = $request->header(SignatureFacade::getHeaderSignature());
-            $method = $request->getMethod();
-            $uri = $request->getPathInfo();
-            $accessKeySecret = '';
+        try {
+            !is_null($server) && SignatureFacade::setServer($server)->loadServer();
+            // $accessKeyId 用于查询应用信息，获取 secret 和 IP 等
+            // $accessKeyId = $request->header(SignatureFacade::getHeaderAccessKeyId());
+            $accessKeySecret = '';  // 可配置或通过数据库查询secret，自行创建数据表
+            $this->setAccessKeySecret($accessKeySecret);
+            $this->setAllowIp([]);  // 可配置或通过数据库查询ip，自行创建数据表
+            //$this->setDenyIp([]); // 可配置或通过数据库查询ip，自行创建数据表
 
-            // 其他判断，通过数据库查询应用信息，自行创建数据表
-            /**
-            $application = Application::where('access_key', $accessKeyId)->first();
-            if (!$application) {
-                throw new SignatureException('应用不存在！');
-            }
-            // IP白名单验证，不在此IP列表中则验证不通过 ['192.168.1.1', '127.0.0.1', ...]
-            if ($application->white_ip) {
-                if (!in_array(request()->getClientIp(), $application->white_ip)) {
-                    throw new SignatureException('该IP不在白名单中，禁止访问！');
-                }
-            }
-            // IP黑名单验证，在此IP列表中则验证不通过 ['192.168.1.2', '127.0.0.2', ...]
-            if ($application->black_ip) {
-                if (in_array(request()->getClientIp(), $application->black_ip)) {
-                    throw new SignatureException('该IP在黑名单中，禁止访问！');
-                }
-            }
-            $accessKeySecret = $application->access_secret;
-             */
-
-            if (!SignatureFacade::verifyTimestamp($timestamp)) {
-                throw new SignatureException('请求超时，请确认服务器时间！');
-            }
-            if (SignatureFacade::setAccessKeyId($accessKeyId)->setAccessKeySecret($accessKeySecret)->setTimestamp($timestamp)->verify($signature, $method, $uri, $request->all())) {
+            if (parent::handle($request, $next)) {
                 return $next($request);
             }
-            throw new SignatureException('签名无效！');
+            throw new \Exception('签名错误！');
         } catch (\Error $e) {
-            throw new HttpException(450, '缺少参数！');
+            throw $e;
+        } catch (SignatureTimeoutException $e) {
+            throw $e;
+        } catch (SignatureAccessException $e) {
+            throw $e;
         } catch (SignatureException $e) {
             throw $e;
         } catch (\Exception $e) {
@@ -146,7 +121,5 @@ class Signature
 
 ### 备注
 
-1、本扩展仅用于个人项目应用之间接口签名验证；
-
-2、测试脚本 tests/SignatureTest.php 仅作为示例供参考。
+1、测试脚本 tests/SignatureTest.php 仅作为示例供参考。
 

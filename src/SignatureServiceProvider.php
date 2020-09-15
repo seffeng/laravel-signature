@@ -26,7 +26,7 @@ class SignatureServiceProvider extends BaseServiceProvider
             $config = $app['config']->get('signature');
 
             if ($config && is_array($config)) {
-                return new Signature($config);
+                return new SignatureManager($config);
             } else {
                 throw new SignatureException('Please execute the command `php artisan vendor:publish --tag="signature"` first to generate signature configuration file.');
             }
@@ -54,7 +54,7 @@ class SignatureServiceProvider extends BaseServiceProvider
      */
     protected function registerAliases()
     {
-        $this->app->alias('seffeng.laravel.signature', Signature::class);
+        $this->app->alias('seffeng.laravel.signature', SignatureManager::class);
     }
 
     /**
