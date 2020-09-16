@@ -72,8 +72,7 @@ class SiteController extends Controller
 ```
 
 ```php
-# 服务端示例，可通过中间件使用，或参考 /tests/SignatureTest.php 
-use Closure;
+# 服务端示例，可通过中间件使用，或参考 /tests/SignatureTest.php
 use Seffeng\LaravelSignature\Exceptions\SignatureException;
 use Seffeng\LaravelSignature\Exceptions\SignatureAccessException;
 use Seffeng\LaravelSignature\Exceptions\SignatureTimeoutException;
@@ -92,8 +91,19 @@ class Signature extends Middleware
         try {
             !is_null($server) && SignatureFacade::setServer($server)->loadServer();
             // $accessKeyId 用于查询应用信息，获取 secret 和 IP 等
-            // $accessKeyId = $request->header(SignatureFacade::getHeaderAccessKeyId());
-            $accessKeySecret = '';  // 可配置或通过数据库查询secret，自行创建数据表
+            $accessKeyId = $request->header(SignatureFacade::getHeaderAccessKeyId());
+            if (true) { // 通过数据库查询secret，自行创建数据表
+                $application = Application::where('access_key_id', $accessKeyId)->first();
+                if (!$application) {
+                    throw new SignatureException('应用不存在！');
+                }
+                $accessKeySecret = $application->access_key_secret;
+            } else {    // 通过配置，自行添加配置字段
+                if ($accessKeyId !== config('signature.servers.default.accessKeyId', '')) {
+                    throw new SignatureException('应用不存在！');
+                }
+                $accessKeySecret = config('signature.servers.default.accessKeySecret', '');
+            }
             $this->setAccessKeySecret($accessKeySecret);
             $this->setAllowIp([]);  // 可配置或通过数据库查询ip，自行创建数据表
             //$this->setDenyIp([]); // 可配置或通过数据库查询ip，自行创建数据表
@@ -101,7 +111,7 @@ class Signature extends Middleware
             if (parent::handle($request, $next)) {
                 return $next($request);
             }
-            throw new \Exception('签名错误！');
+            throw new SignatureException('签名错误！');
         } catch (\Error $e) {
             throw $e;
         } catch (SignatureTimeoutException $e) {

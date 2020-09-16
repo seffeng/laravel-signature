@@ -523,7 +523,7 @@ class SignatureManager
      */
     protected function getSignatureWithTag(string $signature)
     {
-        return empty($this->headerSignatureTag)  ? $signature : ($this->headerSignatureTag . ' ' .  $signature);
+        return empty($this->headerSignatureTag) ? $signature : ($this->headerSignatureTag . ' ' . $signature);
     }
 
     /**
