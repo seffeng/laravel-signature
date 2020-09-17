@@ -45,12 +45,6 @@ return [
             'timeout' => env('SIGNATURE_TIMEOUT', 300),
 
             /**
-             * 版本[V1, v2, v2020...]
-             * version
-             */
-            'version' => env('SIGNATURE_VERSION', ''),
-
-            /**
              * 签名前缀[签名字符串前面拼接的字符]
              */
             'prefix' => env('SIGNATURE_PREFIX', ''),
