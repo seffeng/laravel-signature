@@ -7,10 +7,10 @@ namespace Seffeng\LaravelSignature\Middleware;
 
 use Closure;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Seffeng\LaravelSignature\Exceptions\SignatureException;
+use Seffeng\Signature\Exceptions\SignatureException;
 use Seffeng\LaravelSignature\Facades\Signature as SignatureFacade;
-use Seffeng\LaravelSignature\Exceptions\SignatureTimeoutException;
-use Seffeng\LaravelSignature\Exceptions\SignatureAccessException;
+use Seffeng\Signature\Exceptions\SignatureTimeoutException;
+use Seffeng\Signature\Exceptions\SignatureAccessException;
 
 class Signature
 {
@@ -59,15 +59,14 @@ class Signature
             }
 
             SignatureFacade::setAccessKeyId($accessKeyId)->setAccessKeySecret($this->getAccessKeySecret())->setVersion($version)->setTimestamp($timestamp);
-            if (!SignatureFacade::verifyTimestamp($timestamp)) {
-                throw new SignatureTimeoutException('请求超时，请确认服务器时间！');
-            }
             if (SignatureFacade::verify($signature, $method, $uri, $request->all())) {
                 return true;
             }
             throw new SignatureException('签名无效！');
         } catch (\Error $e) {
             throw $e;
+        } catch (SignatureTimeoutException $e) {
+            throw new SignatureTimeoutException('请求超时，请确认服务器时间！');
         } catch (SignatureException $e) {
             throw $e;
         } catch (\Exception $e) {

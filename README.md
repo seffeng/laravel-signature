@@ -34,7 +34,6 @@ $app->configure('signature');
 
 ```php
 # 客户端示例
-use GuzzleHttp\Client;
 use Seffeng\LaravelSignature\Exceptions\SignatureException;
 use Seffeng\LaravelSignature\Facades\Signature;
 
@@ -60,8 +59,8 @@ class SiteController extends Controller
             //print_r($headers);
 
             // 通过请求传递 $headers，如使用 GuzzleHttp
-            $httpClient = new Client(['base_uri' => Signature::getHost()]);
-            $request = $httpClient->get('/test', ['headers' => $headers, 'query' => $params]);
+            // $httpClient = new Client(['base_uri' => Signature::getHost()]);
+            // $request = $httpClient->get('/test', ['headers' => $headers, 'query' => $params]);
         } catch (SignatureException $e) {
             var_dump($e->getMessage());
         } catch (\Exception $e) {

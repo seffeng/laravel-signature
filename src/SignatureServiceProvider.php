@@ -8,7 +8,7 @@ namespace Seffeng\LaravelSignature;
 use Illuminate\Foundation\Application as LaravelApplication;
 use Laravel\Lumen\Application as LumenApplication;
 use Illuminate\Support\ServiceProvider as BaseServiceProvider;
-use Seffeng\LaravelSignature\Exceptions\SignatureException;
+use Seffeng\Signature\Exceptions\SignatureException;
 
 class SignatureServiceProvider extends BaseServiceProvider
 {
