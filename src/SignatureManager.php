@@ -9,6 +9,13 @@ use Seffeng\Signature\Signature;
 use Seffeng\Signature\Helpers\ArrayHelper;
 use Seffeng\Signature\Exceptions\SignatureException;
 
+/**
+ *
+ * @author zxf
+ * @date   2020年9月21日
+ *
+ * @see \Seffeng\Signature\Signature
+ */
 class SignatureManager
 {
     /**
@@ -232,6 +239,7 @@ class SignatureManager
      */
     protected function loadConfig()
     {
+        $isDebug = ArrayHelper::getValue($this->config, 'debug');
         if ($this->getIsServer()) {
             $options = ArrayHelper::getValue($this->config, 'servers.'. $this->server);
             if (empty($options)) {
@@ -247,7 +255,7 @@ class SignatureManager
             $accessKeyId = ArrayHelper::getValue($options, 'accessKeyId');
             $accessKeySecret = ArrayHelper::getValue($options, 'accessKeySecret');
         }
-        $this->service = new Signature($accessKeyId, $accessKeySecret, $options);
+        $this->service = new Signature($accessKeyId, $accessKeySecret, array_merge(['debug' => $isDebug], $options));
     }
 
     /**
