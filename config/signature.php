@@ -98,12 +98,6 @@ return [
          */
         'default' => [
             /**
-             * 服务端域名
-             * host [http://api.com]
-             */
-            'host' => env('SIGNATURE_HOST', ''),
-
-            /**
              * 版本[V1, v2, v2020...]
              * version
              */
