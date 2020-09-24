@@ -34,7 +34,7 @@ $app->configure('signature');
 
 ```php
 # 客户端示例
-use Seffeng\LaravelSignature\Exceptions\SignatureException;
+use Seffeng\Signature\Exceptions\SignatureException;
 use Seffeng\LaravelSignature\Facades\Signature;
 
 class SiteController extends Controller
@@ -73,9 +73,9 @@ class SiteController extends Controller
 ```php
 # 服务端示例，可通过中间件使用，或参考 /tests/SignatureTest.php
 use Closure;
-use Seffeng\LaravelSignature\Exceptions\SignatureException;
-use Seffeng\LaravelSignature\Exceptions\SignatureAccessException;
-use Seffeng\LaravelSignature\Exceptions\SignatureTimeoutException;
+use Seffeng\Signature\Exceptions\SignatureException;
+use Seffeng\Signature\Exceptions\SignatureAccessException;
+use Seffeng\Signature\Exceptions\SignatureTimeoutException;
 use Seffeng\LaravelSignature\Facades\Signature as SignatureFacade;
 use Seffeng\LaravelSignature\Middleware\Signature as Middleware;
 

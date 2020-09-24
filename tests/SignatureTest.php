@@ -3,9 +3,10 @@
 namespace Seffeng\LaravelSignature\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Seffeng\Signature\Exceptions\SignatureException;
-use Seffeng\Signature\Facades\Signature;
 use Illuminate\Http\Request;
+use Seffeng\LaravelSignature\Facades\Signature;
+use Seffeng\Signature\Exceptions\SignatureException;
+use Seffeng\Signature\Exceptions\SignatureTimeoutException;
 
 class SignatureTest extends TestCase
 {
