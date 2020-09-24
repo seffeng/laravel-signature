@@ -71,6 +71,10 @@ class SiteController extends Controller
 ```
 
 ```php
+# 路由使用中间件，配置中间件
+# 1、默认服务端：middleware('check.signature')
+# 2、其他服务端：middleware('check.signature:other-server')
+
 # 服务端示例，可通过中间件使用，或参考 /tests/SignatureTest.php
 use Closure;
 use Seffeng\Signature\Exceptions\SignatureException;
