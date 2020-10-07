@@ -5,11 +5,6 @@
  */
 return [
     /**
-     * 调试模式[false-验证签名，true-不验证签名]
-     */
-    'debug' => env('SIGNATURE_DEBUG', env('APP_DEBUG', false)),
-
-    /**
      * 默认使用环境[server-服务端, client-客户端]
      */
     'env' => env('SIGNATURE_ENV', 'client'),
@@ -34,6 +29,11 @@ return [
          * 因前端可能暴露配置信息，可以独立一个服务端配置
          */
         'default' => [
+            /**
+             * 调试模式[false-验证签名，true-不验证签名]
+             */
+            'debug' => env('SIGNATURE_DEBUG', env('APP_DEBUG', false)),
+
             /**
              * 签名使用的哈希算法名称
              */

@@ -239,7 +239,6 @@ class SignatureManager
      */
     protected function loadConfig()
     {
-        $isDebug = ArrayHelper::getValue($this->config, 'debug');
         if ($this->getIsServer()) {
             $options = ArrayHelper::getValue($this->config, 'servers.'. $this->server);
             if (empty($options)) {
@@ -255,7 +254,7 @@ class SignatureManager
             $accessKeyId = ArrayHelper::getValue($options, 'accessKeyId');
             $accessKeySecret = ArrayHelper::getValue($options, 'accessKeySecret');
         }
-        $this->service = new Signature($accessKeyId, $accessKeySecret, array_merge(['debug' => $isDebug], $options));
+        $this->service = new Signature($accessKeyId, $accessKeySecret, $options);
     }
 
     /**
