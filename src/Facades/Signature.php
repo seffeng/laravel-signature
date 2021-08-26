@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static string getVersion()
  * @method static string getClient()
  * @method static string getServer()
+ * @method static boolean getIsDebug()
  * @method static array getHeaders(array $headers = [])
  * @method static boolean verifyTimestamp(int $timestamp)
  *

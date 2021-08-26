@@ -30,7 +30,43 @@ class Signature
      *
      * @var string
      */
+    protected $accessKeyId;
+
+    /**
+     *
+     * @var string
+     */
     protected $accessKeySecret;
+
+    /**
+     *
+     * @var integer
+     */
+    protected $timestamp;
+
+    /**
+     *
+     * @var string
+     */
+    protected $signature;
+
+    /**
+     *
+     * @var string
+     */
+    protected $version;
+
+    /**
+     *
+     * @var string
+     */
+    protected $method;
+
+    /**
+     *
+     * @var string
+     */
+    protected $uri;
 
     /**
      *
@@ -45,12 +81,16 @@ class Signature
     public function handle($request, Closure $next, string $server = null)
     {
         try{
-            $accessKeyId = $request->header(SignatureFacade::getHeaderAccessKeyId());
-            $timestamp = $request->header(SignatureFacade::getHeaderTimestamp());
-            $signature = $request->header(SignatureFacade::getHeaderSignature());
-            $version = $request->header(SignatureFacade::getHeaderVersion(), '');
-            $method = $request->getMethod();
-            $uri = $request->getPathInfo();
+            !is_null($server) && SignatureFacade::setServer($server)->loadServer();
+            if (SignatureFacade::getIsDebug()) {
+                return $next($request);
+            }
+            is_null($this->getAccessKeyId()) && $this->setAccessKeyId($request->header(SignatureFacade::getHeaderAccessKeyId()));
+            is_null($this->getTimestamp()) && $this->setTimestamp($request->header(SignatureFacade::getHeaderTimestamp()));
+            is_null($this->getSignature()) && $this->setSignature($request->header(SignatureFacade::getHeaderSignature()));
+            is_null($this->getVersion()) && $this->setVersion($request->header(SignatureFacade::getHeaderVersion(), ''));
+            is_null($this->getMethod()) && $this->setMethod($request->getMethod());
+            is_null($this->getUri()) && $this->setUri($request->getPathInfo());
 
             if ($this->getAllowIp() && !in_array($request->getClientIp(), $this->getAllowIp())) {
                 throw new SignatureAccessException('该IP未授权，禁止访问！');
@@ -58,20 +98,44 @@ class Signature
                 throw new SignatureAccessException('该IP未授权，禁止访问！');
             }
 
-            SignatureFacade::setAccessKeyId($accessKeyId)->setAccessKeySecret($this->getAccessKeySecret())->setVersion($version)->setTimestamp($timestamp);
-            if (SignatureFacade::verify($signature, $method, $uri, $request->all())) {
+            SignatureFacade::setAccessKeyId($this->getAccessKeyId())->setAccessKeySecret($this->getAccessKeySecret())->setVersion($this->getVersion())->setTimestamp($this->getTimestamp());
+            if (SignatureFacade::verify($this->getSignature(), $this->getMethod(), $this->getUri(), $request->all())) {
                 return true;
             }
             throw new SignatureException('签名无效！');
         } catch (\Error $e) {
             throw $e;
+        } catch (SignatureAccessException $e) {
+            throw $e;
         } catch (SignatureTimeoutException $e) {
-            throw new SignatureTimeoutException('请求超时，请确认服务器时间！');
+            throw $e;
         } catch (SignatureException $e) {
             throw $e;
         } catch (\Exception $e) {
             throw $e;
         }
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @param string $accessKeyId
+     */
+    public function setAccessKeyId(string $accessKeyId)
+    {
+        $this->accessKeyId = $accessKeyId;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @return string
+     */
+    public function getAccessKeyId()
+    {
+        return $this->accessKeyId;
     }
 
     /**
@@ -100,7 +164,7 @@ class Signature
      *
      * @author zxf
      * @date   2020年9月15日
-     * @param array $allowIP
+     * @param array $allowIp
      * @return void
      */
     public function setAllowIp(array $allowIp)
@@ -123,7 +187,7 @@ class Signature
      *
      * @author zxf
      * @date   2020年9月15日
-     * @param array $blackIp
+     * @param array $denyIp
      * @return void
      */
     public function setDenyIp(array $denyIp)
@@ -140,5 +204,115 @@ class Signature
     public function getDenyIp()
     {
         return $this->denyIp;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @param integer $timestamp
+     */
+    public function setTimestamp(int $timestamp)
+    {
+        $this->timestamp = $timestamp;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @return integer
+     */
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @param string $method
+     */
+    public function setMethod(string $method)
+    {
+        $this->method = $method;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @param string $uri
+     */
+    public function setUri(string $uri)
+    {
+        $this->uri = $uri;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @return string
+     */
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @param string $signature
+     */
+    public function setSignature(string $signature)
+    {
+        $this->signature = $signature;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @return string
+     */
+    public function getSignature()
+    {
+        return $this->signature;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @param string $version
+     */
+    public function setVersion(string $version)
+    {
+        $this->version = $version;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年8月26日
+     * @return string
+     */
+    public function getVersion()
+    {
+        return $this->version;
     }
 }
