@@ -70,6 +70,12 @@ class Signature
 
     /**
      *
+     * @var array
+     */
+    protected $params;
+
+    /**
+     *
      * @author zxf
      * @date    2020年9月14日
      * @param  \Illuminate\Http\Request $request
@@ -99,7 +105,8 @@ class Signature
             }
 
             SignatureFacade::setAccessKeyId($this->getAccessKeyId())->setAccessKeySecret($this->getAccessKeySecret())->setVersion($this->getVersion())->setTimestamp($this->getTimestamp());
-            if (SignatureFacade::verify($this->getSignature(), $this->getMethod(), $this->getUri(), $request->all())) {
+            $this->setParams($request->all());
+            if (SignatureFacade::verify($this->getSignature(), $this->getMethod(), $this->getUri(), $this->getParams())) {
                 return true;
             }
             throw new SignatureException('签名无效！');
@@ -314,5 +321,29 @@ class Signature
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年9月7日
+     * @param array $params
+     * @return static
+     */
+    public function setParams(array $params)
+    {
+        is_null($this->params) && $this->params = $params;
+        return $this;
+    }
+
+    /**
+     *
+     * @author zxf
+     * @date   2021年9月7日
+     * @return array
+     */
+    public function getParams()
+    {
+        return is_array($this->params) ? $this->params : [];
     }
 }

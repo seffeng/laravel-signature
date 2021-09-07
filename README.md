@@ -111,6 +111,17 @@ class Signature extends Middleware
             $this->setAccessKeySecret($accessKeySecret);
             $this->setAllowIp([]);  // 可配置或通过数据库查询ip，自行创建数据表
             //$this->setDenyIp([]); // 可配置或通过数据库查询ip，自行创建数据表
+            /**
+             * 若某些参数不是通过前端传过来的则需要过滤
+             * 如：在此签名验证中间件前执行了以下方法设置的参数
+             * $request->offsetSet('extra1', '额外参数1');
+             * $request->merge(['extra2' => '额外参数2']);
+            $params = $request->all();
+            if (isset($params['extra1'])) {
+                unset($params['extra1']);
+            }
+            $this->setParams($params);
+            */
 
             if (parent::handle($request, $next)) {
                 return $next($request);
