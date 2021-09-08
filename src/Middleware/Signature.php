@@ -328,11 +328,12 @@ class Signature
      * @author zxf
      * @date   2021年9月7日
      * @param array $params
+     * @param bool $force
      * @return static
      */
-    public function setParams(array $params)
+    public function setParams(array $params, bool $force = false)
     {
-        is_null($this->params) && $this->params = $params;
+        ($force || is_null($this->params)) && $this->params = $params;
         return $this;
     }
 
