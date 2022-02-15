@@ -89,7 +89,7 @@ class Signature
         try{
             !is_null($server) && SignatureFacade::setServer($server)->loadServer();
             if (SignatureFacade::getIsDebug()) {
-                return $next($request);
+                return true;
             }
             is_null($this->getAccessKeyId()) && $this->setAccessKeyId($request->header(SignatureFacade::getHeaderAccessKeyId()));
             is_null($this->getTimestamp()) && $this->setTimestamp($request->header(SignatureFacade::getHeaderTimestamp()));
