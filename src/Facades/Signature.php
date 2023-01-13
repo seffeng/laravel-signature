@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static string getHeaderTimestamp()
  * @method static string getHeaderVersion()
  * @method static string getSignature()
+ * @method static string getSignString()
  * @method static string getVersion()
  * @method static string getClient()
  * @method static string getServer()
