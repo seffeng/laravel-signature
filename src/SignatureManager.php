@@ -202,7 +202,7 @@ class SignatureManager
      *
      * @author zxf
      * @date   2020年9月14日
-     * @param int $typeId
+     * @param integer $typeId
      */
     protected function setTypeId(int $typeId)
     {
